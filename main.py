@@ -2,7 +2,12 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
-from image_search import task
+from image_search import task, get_image_url
+import asyncio
+
+# token
+load_dotenv()
+token = os.getenv("token")
 
 intents = discord.Intents.default()
 intents.typing = True
@@ -34,22 +39,40 @@ async def image(ctx, *, keyword):
             raise ValueError("Please enter a keyword!")
 
         await ctx.send("Searching for images...")
-        image_url = task(keyword)
+        image_urls = await task(keyword)
 
-        if image_url:
+        if image_urls:
             # embed
             embed = discord.Embed(title=keyword, color=0x00ff00)
-            embed.set_image(url=image_url)
-            await ctx.send(embed=embed)
+            rand_url = get_image_url(image_urls)
+            embed.set_image(url=rand_url)
+            message = await ctx.send(embed=embed)
+
+            # add reaction to embed
+            await message.add_reaction("🔄")
+
+            # reaction to change image
+            def check(reaction, user):
+                return user == ctx.author and str(reaction.emoji) == '🔄'
+
+            while True:
+                try:
+                    reaction, user = await bot.wait_for('reaction_add', timeout=30.0, check=check)
+                    if str(reaction.emoji) == '🔄':
+                        rand_url = get_image_url(image_urls)
+                        embed.set_image(url=rand_url)
+                        await message.edit(embed=embed)
+                        await reaction.remove(user)
+                except asyncio.TimeoutError:
+                    await ctx.send("Timed out!")
+                    break
+
         else:
             await ctx.send(f"No images found for '{keyword}'")
-
-        await ctx.send("Done!")
 
     except ValueError as e:
         await ctx.send(str(e))
 
 
 # Replace "YOUR_DISCORD_BOT_TOKEN" with your actual Discord bot token
-load_dotenv()
-bot.run(os.getenv("token"))
+bot.run(token)
