@@ -3,7 +3,6 @@ from base64 import b64encode
 from json import loads
 from json import dumps
 import aiohttp
-import asyncio
 import async_timeout
 
 

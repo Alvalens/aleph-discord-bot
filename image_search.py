@@ -2,7 +2,6 @@ import asyncio
 from client import RestClient
 from dotenv import load_dotenv
 import os
-import time
 import random
 
 load_dotenv()
@@ -27,22 +26,24 @@ except:
     exit()
 
 
-def random_number():
-    return random.randint(1, 30)
-
-
-post_data = dict()
-
-
 async def task(keyword):
+    """
+    Performs an image search for the given keyword using the API.
+
+    Args:
+        keyword (str): The keyword to search for.
+
+    Returns:
+        A list of image URLs.
+    """
     # image search
+    post_data = dict()
     post_data[0] = dict(
         language_code="en",
         location_code=2840,
         keyword=keyword,
         depth=1,
         max_crawl_pages=1,
-
     )
 
     try:
@@ -81,5 +82,15 @@ async def task(keyword):
 
 
 def get_image_url(images):
-    arrayindex = random_number()
+    """
+    Returns a random image URL from the given list of image URLs.
+
+    Args:
+        images (list): A list of image URLs.
+
+    Returns:
+        A random image URL from the list.
+    """
+    maxindex = len(images) - 1
+    arrayindex = random.randint(0, maxindex)
     return images[arrayindex]
