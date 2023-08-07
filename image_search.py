@@ -63,6 +63,7 @@ async def task(keyword):
                     for i in range(len(result)):
                         if result[i]['type'] == 'images_search':
                             images.append(result[i]['source_url'])
+                    print(f"Found {len(images)} images")
                     return images
                 else:
                     print(f"waiting for completion...")
