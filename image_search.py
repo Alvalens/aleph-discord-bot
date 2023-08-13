@@ -61,6 +61,9 @@ async def task(keyword):
                     result = response['tasks'][0]['result'][0]['items']
                     # get all image urls
                     images = []
+                    if result is None:
+                        print(f"Image not found")
+                        return None
                     for i in range(len(result)):
                         if result[i]['type'] == 'images_search':
                             images.append(result[i]['source_url'])
@@ -72,7 +75,7 @@ async def task(keyword):
 
             except Exception as e:
                 print(f"Error making API request: {e}")
-                exit()
+                raise ValueError("Error making API request")
 
     except Exception as e:
         print(f"Error making API request: {e}")
