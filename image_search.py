@@ -3,6 +3,7 @@ from client import RestClient
 from dotenv import load_dotenv
 import os
 import random
+import sys
 
 load_dotenv()
 
@@ -12,10 +13,10 @@ password = os.getenv("password")
 
 if login is None or password is None:
     print("You have not set your login details in the .env file")
-    exit()
+    sys.exit()
 elif login == "" or password == "":
     print("You have not set your login details in the .env file")
-    exit()
+    sys.exit()
 
 # try to connect to the API
 try:
@@ -23,7 +24,7 @@ try:
     print("Connected to the API")
 except:
     print("Failed to connect to the API")
-    exit()
+    sys.exit()
 
 
 async def task(keyword):
