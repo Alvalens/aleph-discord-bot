@@ -62,7 +62,7 @@ async def task(keyword):
                     # get all image urls
                     images = []
                     if result is None:
-                        print(f"Image not found")
+                        print("Image not found")
                         return None
                     for i in range(len(result)):
                         if result[i]['type'] == 'images_search':
@@ -70,7 +70,7 @@ async def task(keyword):
                     print(f"Found {len(images)} images")
                     return images
                 else:
-                    print(f"waiting for completion...")
+                    print("waiting for completion...")
                     await asyncio.sleep(5)
 
             except Exception as e:
