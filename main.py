@@ -40,7 +40,7 @@ async def help(ctx):
     """
     embed = discord.Embed(title="Commands", color=0x00ff00)
     embed.add_field(
-        name="image", value=f"Searches for an image ex: ?images keywords", inline=False)
+        name="image", value="Searches for an image ex: ?images keywords", inline=False)
     embed.add_field(name="ping", value="Pings the bot ex: ?ping", inline=False)
     embed.add_field(name="clear", value="Deletes the specified number of messages ex: ?clear 5", inline=False)
     await ctx.send(embed=embed)
