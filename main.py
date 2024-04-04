@@ -1,64 +1,85 @@
-import discord
-from discord.ext import commands
+# import discord
+import asyncio
+import interactions
 from dotenv import load_dotenv
 import os
+
 from image_search import task, get_image_url
-import asyncio
+from interactions import (
+    Client,
+    slash_command,
+    SlashContext,
+    Intents,
+    listen,
+    slash_option,
+    Button,
+    ButtonStyle,
+)
+from interactions.api.events import Component, MessageCreate
 
 load_dotenv()
 
+
 # Get the Discord bot token from the environment variables
-token = os.getenv("token")
+# token = os.getenv("token")
+client = Client(
+    token=os.environ.get("TOKEN"),
+    intents=Intents.ALL,
+    
+)
 
-# Set up the Discord bot with the necessary intents
-intents = discord.Intents.default()
-intents.typing = True
-intents.presences = False
-intents.message_content = True
-
-# Create a new bot instance with the specified command prefix and intents
-bot = commands.Bot(command_prefix=('?'), intents=intents)
-
-# Remove the default help command
-bot.remove_command('help')
-
-# Event handler for when the bot is ready
-@bot.event
+# listener whenever someone sends a message containing 'aleph'
+@listen(MessageCreate)
+async def on_message_create(event: MessageCreate):
+    if event.message.author.bot:
+        return
+    # if aleph, hi, hello, hay, hey or helo in the message
+    if "aleph" in event.message.content.lower() or "hi" in event.message.content.lower() or "hello" in event.message.content.lower() or "hay" in event.message.content.lower() or "hey" in event.message.content.lower() or "helo" in event.message.content.lower():
+        await event.message.reply(f"Hello {event.message.author.mention}! How can I help you today? 😊")
+        
+@listen()
 async def on_ready():
-    """
-    Called when the bot is ready to start receiving events.
-    """
-    print(f'{bot.user.name} has connected to Discord!')
-    await bot.change_presence(status=discord.Status.idle)
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="Hello, I'm a bot!"))
+    print("Bot is ready")
+    await client.change_presence(
+        status=interactions.Status.IDLE,
+        activity=interactions.Activity(
+            type=interactions.ActivityType.PLAYING, name="Hello, I'm Aleph!"
+        ),
+    )
+    
 
 # Command to display the list of available commands
-@bot.command(name='help', hidden=False)
-async def help(ctx):
-    """
-    Displays the list of available commands.
-    """
-    embed = discord.Embed(title="Commands", color=0x00ff00)
+@slash_command(name="help", description="Displays a list of commands")
+async def help(ctx: SlashContext):
+    embed = interactions.Embed(title="Commands", color=0x00FF00)
     embed.add_field(
-        name="image", value=f"Searches for an image ex: ?images keywords", inline=False)
-    embed.add_field(name="ping", value="Pings the bot ex: ?ping", inline=False)
-    embed.add_field(name="clear", value="Deletes the specified number of messages ex: ?clear 5", inline=False)
+        name="image", value=f"Searches for an image ex: /image keywords", inline=False
+    )
+    embed.add_field(name="ping", value="Pings the bot ex: /ping", inline=False)
+    embed.add_field(
+        name="clear",
+        value="Deletes the specified number of messages ex: /clear 5",
+        inline=False,
+    )
+    await ctx.defer()
     await ctx.send(embed=embed)
 
-# Command to ping the bot
-@bot.command(name='ping', hidden=False)
-async def ping(ctx):
-    """
-    Pings the bot and returns "Pong!".
-    """
+
+# # Command to ping the bot
+@slash_command(name="ping", description="Pings the bot")
+async def ping(ctx: SlashContext):
     await ctx.send("Pong!")
 
+
 # Command to search for an image
-@bot.command()
-async def image(ctx, *, keyword):
-    """
-    Searches for an image based on the specified keyword and displays it in an embed.
-    """
+@slash_command(name="image", description="Searches for an image")
+@slash_option(
+    name="keyword",
+    description="The keyword to search for",
+    required=True,
+    opt_type=interactions.OptionType.STRING,
+)
+async def image(ctx: SlashContext, keyword: str):
     try:
         if not keyword:
             await ctx.send("Please enter a keyword!")
@@ -66,62 +87,62 @@ async def image(ctx, *, keyword):
 
         await ctx.send("Searching for images...")
         image_urls = await task(keyword)
-
         if image_urls:
             # embed
-            embed = discord.Embed(title=keyword, color=0x00ff00)
+            embed = interactions.Embed(title=keyword, color=0x00FF00)
             rand_url = get_image_url(image_urls)
             embed.set_image(url=rand_url)
-            message = await ctx.send(embed=embed)
+            # message = await ctx.send(embed=embed)
 
-            # add reaction to embed
-            await message.add_reaction("🔄")
+            button = Button(
+                
+                style=ButtonStyle.PRIMARY,
+                label="Change Image"
+            )
 
-            # reaction to change image
-            def check(reaction, user):
-                return user == ctx.author and str(reaction.emoji) == '🔄'
+            # Add the button to the message
+            message = await ctx.send(embed=embed, components=[button])
 
+            # Change the image
             while True:
                 try:
-                    reaction, user = await bot.wait_for('reaction_add', timeout=30.0, check=check)
-                    if str(reaction.emoji) == '🔄':
-                        rand_url = get_image_url(image_urls)
-                        embed.set_image(url=rand_url)
-                        await message.edit(embed=embed)
-                        await reaction.remove(user)
-                except asyncio.TimeoutError:
-                    await ctx.send("Timed out!")
-                    break
+                    used_component: Component = await client.wait_for_component(components=button, timeout=30)
 
+                    await used_component.ctx.defer(edit_origin=True)
+                    rand_url = get_image_url(image_urls)
+                    embed.set_image(url=rand_url)
+                    await message.edit(embed=embed)
+                    await used_component.ctx.edit_origin(
+                        embed=embed, content="Image changed!"
+                    )
+                except asyncio.TimeoutError:
+                    print("Timeout")
+                    button.disabled = True
+                    await message.edit(components=button)
+                    break
+                except Exception as e:
+                    print(f"Error making API request: {e}")
+                    raise ValueError("Error making API request")
         else:
             await ctx.send(f"No images found for '{keyword}'")
 
     except ValueError as e:
         await ctx.send(str(e))
 
-# Event handler for when a message is received
-@bot.event
-async def on_message(message):
-    """
-    Called when a message is received.
-    """
-    if message.author == bot.user:
-        return
-    if message.content == "Hello" or message.content == "hello" or message.content == "hi" or message.content == "Hi" or message.content == "hey" or message.content == "Hey" or message.content == "halo" or message.content == "Halo" or message.content == "Hai" or message.content == "hai":
-        await message.channel.send(f"Hello {message.author.mention} 👋")
-    await bot.process_commands(message)
 
 # Command to delete messages
-@bot.command(name='clear', hidden=False)
-@commands.has_permissions(manage_messages=True)
-async def clear(ctx, amount=5):
-    """
-    Deletes the specified number of messages from the channel.
-    """
-    await ctx.channel.purge(limit=amount)
-    await ctx.send(f"{amount} messages deleted!")
-    await asyncio.sleep(2)
-    await ctx.channel.purge(limit=1)
+@slash_command(name="clear", description="Deletes messages")
+@slash_option(
+    name="amount",
+    description="The number of messages to delete",
+    required=True,
+    opt_type=interactions.OptionType.INTEGER,
+)
+async def clear(ctx: SlashContext, amount: int = 5):
+    await ctx.channel.purge(deletion_limit = amount + 1)
+    await ctx.send(f"Deleted {amount} messages")
+    await asyncio.sleep(3)
+    await ctx.delete()
 
-# Start the bot with the specified token
-bot.run(token)
+# Start the bot
+client.start()
