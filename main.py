@@ -31,14 +31,37 @@ client = Client(
 # listener whenever someone sends a message containing 'aleph'
 @listen(MessageCreate)
 async def on_message_create(event: MessageCreate):
+    """
+    Listens for new messages and responds with a greeting if certain keywords are detected.
+
+    Args:
+        event (MessageCreate): The event object representing the newly created message.
+
+    Returns:
+        None
+    """
     if event.message.author.bot:
         return
     # if aleph, hi, hello, hay, hey or helo in the message
     if "aleph" in event.message.content.lower() or "hi" in event.message.content.lower() or "hello" in event.message.content.lower() or "hay" in event.message.content.lower() or "hey" in event.message.content.lower() or "helo" in event.message.content.lower():
         await event.message.reply(f"Hello {event.message.author.mention}! How can I help you today? 😊")
+
         
 @listen()
 async def on_ready():
+    """
+    Event handler for when the bot is ready.
+
+    This function is called when the bot has successfully connected to the Discord server and is ready to start receiving events.
+
+    It prints a message to indicate that the bot is ready and sets the bot's presence to show that it is idle and playing a game.
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
     print("Bot is ready")
     await client.change_presence(
         status=interactions.Status.IDLE,
@@ -51,6 +74,19 @@ async def on_ready():
 # Command to display the list of available commands
 @slash_command(name="help", description="Displays a list of commands")
 async def help(ctx: SlashContext):
+    """
+    Displays a list of commands.
+
+    Parameters:
+    - ctx (SlashContext): The context of the slash command.
+
+    Returns:
+    - None
+
+    Example usage:
+    /help
+    """
+    await ctx.defer()
     embed = interactions.Embed(title="Commands", color=0x00FF00)
     embed.add_field(
         name="image", value=f"Searches for an image ex: /image keywords", inline=False
@@ -61,13 +97,22 @@ async def help(ctx: SlashContext):
         value="Deletes the specified number of messages ex: /clear 5",
         inline=False,
     )
-    await ctx.defer()
+
     await ctx.send(embed=embed)
 
 
-# # Command to ping the bot
+# Command to ping the bot
 @slash_command(name="ping", description="Pings the bot")
 async def ping(ctx: SlashContext):
+    """
+    Sends a ping message to the bot.
+
+    Parameters:
+    - ctx (SlashContext): The context of the slash command.
+
+    Returns:
+    - None
+    """
     await ctx.send("Pong!")
 
 
@@ -80,6 +125,20 @@ async def ping(ctx: SlashContext):
     opt_type=interactions.OptionType.STRING,
 )
 async def image(ctx: SlashContext, keyword: str):
+    """
+    Searches for an image based on the provided keyword and displays it in an embed.
+    
+    Parameters:
+    - ctx (SlashContext): The context of the slash command.
+    - keyword (str): The keyword to search for.
+    
+    Raises:
+    - ValueError: If no keyword is provided.
+    - ValueError: If there is an error making the API request.
+    
+    Returns:
+    - None
+    """
     try:
         if not keyword:
             await ctx.send("Please enter a keyword!")
@@ -95,7 +154,6 @@ async def image(ctx: SlashContext, keyword: str):
             # message = await ctx.send(embed=embed)
 
             button = Button(
-                
                 style=ButtonStyle.PRIMARY,
                 label="Change Image"
             )
@@ -139,7 +197,17 @@ async def image(ctx: SlashContext, keyword: str):
     opt_type=interactions.OptionType.INTEGER,
 )
 async def clear(ctx: SlashContext, amount: int = 5):
-    await ctx.channel.purge(deletion_limit = amount + 1)
+    """
+    Clears a specified number of messages in the channel.
+
+    Parameters:
+    - ctx (SlashContext): The context of the slash command.
+    - amount (int): The number of messages to delete. Default is 5.
+
+    Returns:
+    None
+    """
+    await ctx.channel.purge(deletion_limit=amount + 1)
     await ctx.send(f"Deleted {amount} messages")
     await asyncio.sleep(3)
     await ctx.delete()
