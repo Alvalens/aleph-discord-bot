@@ -1,6 +1,4 @@
-from http.client import HTTPSConnection
 from base64 import b64encode
-from json import loads
 from json import dumps
 import aiohttp
 import async_timeout
