@@ -1,5 +1,6 @@
 # import discord
 import asyncio
+import random
 import interactions
 from dotenv import load_dotenv
 import os
@@ -46,7 +47,7 @@ async def on_message_create(event: MessageCreate):
     if "aleph" in event.message.content.lower() or "hi" in event.message.content.lower() or "hello" in event.message.content.lower() or "hay" in event.message.content.lower() or "hey" in event.message.content.lower() or "helo" in event.message.content.lower():
         await event.message.reply(f"Hello {event.message.author.mention}! How can I help you today? 😊")
 
-        
+
 @listen()
 async def on_ready():
     """
@@ -69,7 +70,6 @@ async def on_ready():
             type=interactions.ActivityType.PLAYING, name="Hello, I'm Aleph!"
         ),
     )
-    
 
 # Command to display the list of available commands
 @slash_command(name="help", description="Displays a list of commands")
@@ -86,7 +86,6 @@ async def help(ctx: SlashContext):
     Example usage:
     /help
     """
-    await ctx.defer()
     embed = interactions.Embed(title="Commands", color=0x00FF00)
     embed.add_field(
         name="image", value=f"Searches for an image ex: /image keywords", inline=False
@@ -97,8 +96,51 @@ async def help(ctx: SlashContext):
         value="Deletes the specified number of messages ex: /clear 5",
         inline=False,
     )
-
+    await ctx.defer()
     await ctx.send(embed=embed)
+
+# command to check current month bational day of indonesia 
+@slash_command(name="libur", description="Check the national day of Indonesia")
+@slash_option(
+    name="month",
+    description="The month to check",
+    required=True,
+    opt_type=interactions.OptionType.INTEGER,
+)
+async def libur(ctx: SlashContext, month: int):
+    """
+    Check the national day of Indonesia for the specified month.
+
+    Parameters:
+    - ctx (SlashContext): The context of the slash command.
+    - month (int): The month to check.
+
+    Returns:
+    None
+    """
+    try:
+        if month < 1 or month > 12:
+            await ctx.send("Invalid month! Please enter a month between 1 and 12.")
+            raise ValueError("Invalid month! Please enter a month between 1 and 12.")
+
+        await ctx.send(f"Checking national day for month {month}...")
+        response = await client.get_async(f"/api?month={month}")
+        if response:
+            holidays = response
+            if holidays:
+                for holiday in holidays:
+                    if holiday["is_national_holiday"]:
+                        await ctx.send(f"{holiday['holiday_date']}: {holiday['holiday_name']}")
+            else:
+                await ctx.send("No national holidays found for the specified month.")
+        else:
+            await ctx.send("No data found for the specified month.")
+
+    except ValueError as e:
+        await ctx.send(str(e))
+    except Exception as e:
+        print(f"Error making API request: {e}")
+        raise ValueError("Error making API request")
 
 
 # Command to ping the bot
@@ -211,6 +253,38 @@ async def clear(ctx: SlashContext, amount: int = 5):
     await ctx.send(f"Deleted {amount} messages")
     await asyncio.sleep(3)
     await ctx.delete()
+
+# command take a list of string to gacha pick one random string
+@slash_command(name="gacha", description="Pick a random string from the list")
+@slash_option(
+    name="list",
+    description="List of strings separated by comma",
+    required=True,
+    opt_type=interactions.OptionType.STRING,
+)
+async def gacha(ctx: SlashContext, list: str):
+    """
+    Pick a random string from the list of strings provided by the user.
+
+    Parameters:
+    - ctx (SlashContext): The context of the slash command.
+    - list (str): List of strings separated by comma.
+
+    Returns:
+    None
+    """
+    try:
+        if not list:
+            await ctx.send("Please enter a list of strings separated by comma!")
+            raise ValueError("Please enter a list of strings separated by comma!")
+
+        list = list.split(",")
+        rand_str = list[random.randint(0, len(list) - 1)]
+        await ctx.send(f"Randomly picked: {rand_str}")
+
+    except ValueError as e:
+        await ctx.send(str(e))
+
 
 # Start the bot
 client.start()
