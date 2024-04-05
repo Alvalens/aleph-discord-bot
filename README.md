@@ -1,7 +1,8 @@
 # Aleph Bot
+
 ![visitor badge](https://visitor-badge.laobi.icu/badge?page_id=alvalens.visitor-badge)
 
-Aleph Bot is a Discord bot that allows you to search for images based on keywords and some other utility commands.
+Aleph Bot is a Discord bot that allows you to search for images based on keywords and some other utility commands. If you want to preview the bot you can join my discord server 😊.
 
 [![AlephZe](https://dcbadge.vercel.app/api/server/cZH93kM)](https://discord.gg/cZH93kM) ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54) ![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)
 
@@ -16,7 +17,6 @@ Aleph Bot is a Discord bot that allows you to search for images based on keyword
    ```git
    git clone git@github.com:Alvalens/discord-bot.git
    ```
-
 2. Install the required dependencies:
 3. Create a `.env` or copy the .env.example file in the project root with the following content:
 
@@ -35,9 +35,9 @@ Aleph Bot is a Discord bot that allows you to search for images based on keyword
 
 ## Usage
 
-* `?image<keywords>`: Searches for images based on the provided keywords.
-* `?help`: Show avalible commands
-* `?ping`: Pings the bot and returns "Pong!".
+* `/image<keywords>`: Searches for images based on the provided keywords.
+* `/help`: Show avalible commands
+* `/ping`: Pings the bot and returns "Pong!".
 
 ## Contributing
 
