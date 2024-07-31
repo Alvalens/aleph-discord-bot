@@ -30,6 +30,11 @@ client = Client(
     
 )
 
+async def fetch_last_messages(channel, limit=10):
+    messages = await channel.history(limit=limit).flatten()
+    return [message.content for message in messages]
+
+
 # listener whenever someone sends a message containing 'aleph'
 @listen(MessageCreate)
 async def on_message_create(event: MessageCreate):
@@ -100,7 +105,7 @@ async def help(ctx: SlashContext):
     await ctx.defer()
     await ctx.send(embed=embed)
 
-# command to check current month bational day of indonesia 
+# command to check current month bational day of indonesia
 @slash_command(name="libur", description="Check the national day of Indonesia")
 @slash_option(
     name="month",
@@ -305,14 +310,17 @@ async def ask(ctx: SlashContext, question: str):
     Returns:
     None
     """
+    user_name = ctx.author.username
+    channel = ctx.channel
     try:
         if not question:
             await ctx.send("Please enter a question!")
             raise ValueError("Please enter a question!")
 
-        await ctx.send("Asking the bot...")
-        response = call_model(question)
-        await ctx.send(response)
+        context = await fetch_last_messages(channel, limit=10)
+        initial_message = await ctx.send("Asking the bot...")
+        response = call_model(user_name, question, context)
+        await initial_message.edit(content=response)
 
     except ValueError as e:
         await ctx.send(str(e))
