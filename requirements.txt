@@ -1,2 +1,4 @@
 discord-py-slash-command
 python-dotenv
+discord-py-interactions
+async_timeout
