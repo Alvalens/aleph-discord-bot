@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import os
 
 from image_search import task, get_image_url
+from gemini import call_model
 from interactions import (
     Client,
     slash_command,
@@ -137,7 +138,7 @@ async def libur(ctx: SlashContext, month: int):
             await ctx.send("No data found for the specified month.")
 
     except ValueError as e:
-        await ctx.send(str(e))
+        await ctx.send()
     except Exception as e:
         print(f"Error making API request: {e}")
         raise ValueError("Error making API request")
@@ -221,7 +222,8 @@ async def image(ctx: SlashContext, keyword: str):
                     await message.edit(components=button)
                     break
                 except Exception as e:
-                    print(f"Error making API request: {e}")
+                    # print(f"Error making API request: {e}")
+                    ctx.send("Error making API request")
                     raise ValueError("Error making API request")
         else:
             await ctx.send(f"No images found for '{keyword}'")
@@ -281,6 +283,36 @@ async def gacha(ctx: SlashContext, list: str):
         list = list.split(",")
         rand_str = list[random.randint(0, len(list) - 1)]
         await ctx.send(f"Randomly picked: {rand_str}")
+
+    except ValueError as e:
+        await ctx.send(str(e))
+
+@slash_command(name="ask", description="Ask a question")
+@slash_option(
+    name="question",
+    description="The question to ask",
+    required=True,
+    opt_type=interactions.OptionType.STRING,
+)
+async def ask(ctx: SlashContext, question: str):
+    """
+    Ask a question and get a response from the chatbot.
+
+    Parameters:
+    - ctx (SlashContext): The context of the slash command.
+    - question (str): The question to ask.
+
+    Returns:
+    None
+    """
+    try:
+        if not question:
+            await ctx.send("Please enter a question!")
+            raise ValueError("Please enter a question!")
+
+        await ctx.send("Asking the bot...")
+        response = call_model(question)
+        await ctx.send(response)
 
     except ValueError as e:
         await ctx.send(str(e))
