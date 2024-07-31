@@ -317,7 +317,7 @@ async def ask(ctx: SlashContext, question: str):
             await ctx.send("Please enter a question!")
             raise ValueError("Please enter a question!")
 
-        context = await fetch_last_messages(channel, limit=10)
+        context = await fetch_last_messages(channel, limit=5)
         initial_message = await ctx.send("Asking the bot...")
         response = call_model(user_name, question, context)
         await initial_message.edit(content=response)
