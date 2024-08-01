@@ -19,6 +19,10 @@ Aleph Bot is a Discord bot that allows you to ask or chat with an AI, search for
    git clone git@github.com:Alvalens/discord-bot.git
    ```
 2. Install the required dependencies:
+
+   ```powershell
+   pip install --r requirements.txt
+   ```
 3. Create a `.env` or copy the .env.example file in the project root with the following content:
 
    ```
