@@ -2,21 +2,21 @@
 
 ![visitor badge](https://visitor-badge.laobi.icu/badge?page_id=alvalens.visitor-badge)
 
-Aleph Bot is a Discord bot that allows you to ask or chat with an AI, search for images based on keywords and some other utility commands. If you want to preview the bot you can join my discord server 😊.
+Aleph Bot is a Discord bot that allows you to ask or chat with an AI to get a unique response instead of just static one, you can also search for images based on keywords and some other utility commands. If you want to preview the bot you can join my discord server 😊.
 
 [![AlephZe](https://dcbadge.vercel.app/api/server/cZH93kM)](https://discord.gg/cZH93kM) ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54) ![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)
 
 ## Features
 
-- Image search: Search for images based on keywords using the `?image` command.
-- Ask AI: ask whatever question to an gen AI
+- Image search: Search for images based on keywords using the `/image` command.
+- Ask AI: ask whatever question to an gen AI to get answer with `/ask `command,
 
 ## Installation
 
 1. Clone the repository:
 
    ```git
-   git clone git@github.com:Alvalens/discord-bot.git
+   https://github.com/Alvalens/aleph-discord-bot.git
    ```
 2. Install the required dependencies:
 
@@ -29,9 +29,10 @@ Aleph Bot is a Discord bot that allows you to ask or chat with an AI, search for
    token=YOUR_DISCORD_BOT_TOKEN
    login=YOUR_API_LOGIN
    password=YOUR_API_PASSWORD
+   gemini_api_key=YOUR_GEMINI_API_KEY
    ```
 
-   Replace `token`, `login`, and `paddword` with your actual tokens and credentials. SERP API used: [DataForSeo Google image search](https://dataforseo.com/)
+   Replace `token`, `login`,  `password` and `gemini api key` with your actual tokens and credentials. SERP API used: [DataForSeo Google image search](https://dataforseo.com/). For gemini API you can setup it [here](https://aistudio.google.com/ "ai studio").
 4. Run the bot
 
    ```python
@@ -43,7 +44,7 @@ Aleph Bot is a Discord bot that allows you to ask or chat with an AI, search for
 * `/image<keywords>`: Searches for images based on the provided keywords.
 * `/help`: Show avalible commands
 * `/ping`: Pings the bot and returns "Pong!".
-* `/ask <question>: `ask an question and get an answer from gemini
+* `/ask <question>: `ask an question and get an answer from gemini AI
 * `/clear <amount>: `clear or delete a messages from an channel
 
 ## Contributing

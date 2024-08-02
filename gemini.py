@@ -25,8 +25,9 @@ def call_model(user_name, question, context=None):
         f"Responding to {user_name}: "
     )
     context_str = "\n".join(context)
-    print(context_str)
-    main_prompt = preprompt + context_str + "\n\n" + question
+    reversed_context_lines = "\n".join(context_str.split("\n")[::-1])
+    print(reversed_context_lines)
+    main_prompt = preprompt + reversed_context_lines + "\n\n" + question
 
     try:
         response = model.generate_content(main_prompt)
